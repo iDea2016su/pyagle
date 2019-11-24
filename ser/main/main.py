@@ -12,7 +12,9 @@ import re
 from dateutil.tz import win
 
 from app.Filter import Filter
+from app.Filter2 import Filter2
 from app.List import List
+from app.List2 import List2
 from app.Seriar import Seriar
 from app.WarnValue import WarnValue
 
@@ -46,8 +48,10 @@ SerCount = 0
 SerCom = 'COM11'
 dataQueue = queue.Queue(1000)
 listArr = List()
+listArr1 = List2()
 file_handle = open('.1.txt', mode='w')
 myFilter = Filter()
+myFilter2 = Filter2()
 top = tk.Tk()
 top.geometry('600x400')
 top.resizable(0, 0)
@@ -66,19 +70,27 @@ def ReceiveTask():
     global rt
     global dataQueue
     while True:
-        time.sleep(0.01)
+        time.sleep(0.05)
         n = rt.l_serial.inWaiting()  # 获取接收到的数据长度
         if n:
             data = ((rt.l_serial.read_all().decode('utf-8')))
             #print('get data from serial port:' + data)
             if (re.search('[8][0]:', data) != None):
-                res = str(data).split(":")
-                l = len(res[1])
-                num = res[1][0:l-2]
-                #print(str(num))
+                try:
+                    res = str(data).split(":")
+                except IndexError:
+                    pass
+                try:
+                    l = len(res[2])
+                    num = res[2][0:l-2]
+                    num1 = res[1]
+                    print(str(num)+":"+str(num1))
+                except IndexError:
+                    pass
                 if (re.search('\-?[0-9]*', num) != None):
                     try:
-                        dataQueue.put_nowait(float(num))
+                        d = [float(num),float(num1)]
+                        dataQueue.put_nowait(d)
                     except ValueError:
                         pass
                 #print(str(float(num)))
@@ -247,9 +259,13 @@ def DrawTask():
         num = dataQueue.get(timeout=10000)
         print("get " + str(num))
         #cnum = float(num)
-        cnum = myFilter.filter(float(num))
-        listArr.add(cnum)
+        cn0 = myFilter.filter(float(num[0]))
+        cn1 = myFilter2.filter(float(num[1]))
+        #cnum = myFilter.filter(float(num))
+        listArr.add(cn0)
+        listArr1.add(cn1)
         list = listArr.get()
+        list1 = listArr1.get()
         i = 0
         j = 0
         mc = 0
@@ -267,6 +283,18 @@ def DrawTask():
             cv.create_line(i, list[j], i + 10, list[j + 1], fill='blue', width=2)  # xyxy
             i = i + 10
             j = j + 1
+
+        m = 0
+        n = 0
+        if (warnValue.getUpValue() - warnValue.getDownValue() != 0):
+            list1[47] = 143 + (list1[47]) / (warnValue.getUpValue() - warnValue.getDownValue()) * 1430
+        else:
+            list1[47] = 143
+        while (m < 470):
+            cv.create_line(m, list1[n], m + 10, list1[n + 1], fill='red', width=2)  # xyxy
+            m = m + 10
+            n = n + 1
+
         time.sleep(0.01)
 
 

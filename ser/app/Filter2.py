@@ -1,4 +1,4 @@
-class Filter:
+class Filter2:
     Q = 0.01
     R = 2.0
     A = 1.0
