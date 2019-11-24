@@ -7,6 +7,7 @@ import threading
 import queue
 import time
 import re
+import math
 
 # 复选框状态
 from dateutil.tz import win
@@ -249,12 +250,17 @@ Upcheck.place(x=10, y=65, anchor=tk.NW)
 Downcheck = tk.Checkbutton(top, textvariable=DownVar, font=6, command=CheckCallBack, variable=1, onvalue=0, offvalue=1)
 Downcheck.place(x=180, y=65, anchor=tk.NW)
 
+def draline(tcv = cv,angle = 0):
+    tcv.create_line(240, 150, 240+120*math.cos(angle), 150+120*math.sin(angle), fill='black', width=4)
 
+
+a = 0.0;
 def DrawTask():
     global cv
     global avrage
     global warnValue
     global dataQueue
+    global a
     while True:
         num = dataQueue.get(timeout=10000)
         print("get " + str(num))
@@ -269,31 +275,39 @@ def DrawTask():
         i = 0
         j = 0
         mc = 0
+        x0 = 240
+        y0 = 150
+        r = 125
+        r0 = 5
         cv.delete(tk.ALL)
+        cv.create_oval(x0-r,y0-r,x0+r,y0+r)
+        cv.create_oval(x0 - r0, y0 - r0, x0 + r0, y0 + r0)
+        draline(cv,a)
+        a = a + 0.01
         #cv.create_text(460, 10, text=str(int(CValue)))
         #cv.create_text(10, 10, text=str(warnValue.getUpValue()))
         #cv.create_text(10, 270, text=str(warnValue.getDownValue()))
-        cv.create_line(0, 143, 480, 143, fill='black', width=2)
+        #cv.create_line(0, 143, 480, 143, fill='black', width=2)
         # print("log  "+str(avrage) +" "+ str(warnValue.getUpValue())+" "+str(warnValue.getDownValue()))
-        if (warnValue.getUpValue() - warnValue.getDownValue() != 0):
-            list[47] = 143 + (list[47]) / (warnValue.getUpValue() - warnValue.getDownValue()) * 1430
-        else:
-            list[47] = 143
-        while (i < 470):
-            cv.create_line(i, list[j], i + 10, list[j + 1], fill='blue', width=2)  # xyxy
-            i = i + 10
-            j = j + 1
+        #if (warnValue.getUpValue() - warnValue.getDownValue() != 0):
+        #    list[47] = 143 + (list[47]) / (warnValue.getUpValue() - warnValue.getDownValue()) * 1430
+        #else:
+        #    list[47] = 143
+        #while (i < 470):
+        #    cv.create_line(i, list[j], i + 10, list[j + 1], fill='blue', width=2)  # xyxy
+        #    i = i + 10
+        #    j = j + 1
 
-        m = 0
-        n = 0
-        if (warnValue.getUpValue() - warnValue.getDownValue() != 0):
-            list1[47] = 143 + (list1[47]) / (warnValue.getUpValue() - warnValue.getDownValue()) * 1430
-        else:
-            list1[47] = 143
-        while (m < 470):
-            cv.create_line(m, list1[n], m + 10, list1[n + 1], fill='red', width=2)  # xyxy
-            m = m + 10
-            n = n + 1
+        #m = 0
+        #n = 0
+        #if (warnValue.getUpValue() - warnValue.getDownValue() != 0):
+        #    list1[47] = 143 + (list1[47]) / (warnValue.getUpValue() - warnValue.getDownValue()) * 1430
+        #else:
+        #    list1[47] = 143
+        #while (m < 470):
+        #    cv.create_line(m, list1[n], m + 10, list1[n + 1], fill='red', width=2)  # xyxy
+        #   m = m + 10
+        #    n = n + 1
 
         time.sleep(0.01)
 
