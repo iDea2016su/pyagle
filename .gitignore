@@ -1,0 +1,10 @@
+/data/
+/main/build/
+/main/dist/
+/venv/
+.idea
+*.log
+__pycache__/
+*.py[cod]
+*$py.class
+
